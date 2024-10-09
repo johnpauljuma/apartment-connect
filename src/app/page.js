@@ -1,13 +1,21 @@
 "use client";
 
-import { Input, Select } from 'antd';
-import { useState } from 'react';
+import {useEffect, useState } from 'react';
+import SidebarMenu from './components/SidebarMenu';
+import Dashboard from './components/Dashboard';
 import FeaturedApartments from './components/FeaturedApartments'; 
-
-const { Search } = Input;
-const { Option } = Select;
+import SearchAndFilter from './components/SearchAndFilter';
 
 const HomePage = () => {
+  const [view, setView] = useState('home');
+  useEffect(() => {
+    // Load the view from localStorage to maintain the state on page refresh
+    const storedView = localStorage.getItem('view');
+    if (storedView) {
+      setView(storedView);
+    }
+  }, []);
+
   const [properties] = useState([
     {
       id: 1,
@@ -47,35 +55,21 @@ const HomePage = () => {
     },
   ]);
 
-  return (
-    <div style={{ marginTop: '20px' }}>
-      <div style={{ padding: '5px', marginBottom: '10px', boxShadow:'5px', borderRadius:'5px'}}>
-        <Search
-          placeholder="Search for town or city..."
-          enterButton="Search"
-          size="large"
-        />
-        <div style={{ margin: '20px 0' }}>
-          <Select defaultValue="All Types" style={{ width: 120 }}>
-            <Option value="all">All Types</Option>
-            <Option value="rent">For Rent</Option>
-            <Option value="sale">For Sale</Option>
-          </Select>
-          <Select defaultValue="Bedrooms" style={{ width: 120, marginLeft: '10px' }}>
-            <Option value="1">1 Bedroom</Option>
-            <Option value="2">2 Bedrooms</Option>
-            <Option value="3">3 Bedrooms</Option>
-          </Select>
-          <Select defaultValue="Bathrooms" style={{ width: 120, marginLeft: '10px' }}>
-            <Option value="1">1 Bathroom</Option>
-            <Option value="2">2 Bathrooms</Option>
-            <Option value="3">3 Bathrooms</Option>
-          </Select>
-        </div>
-      </div>
+  // Styles for layout
+  const styles = {
+    container: {
+      marginTop: '10px',
+    },
+   
+  };
 
-      {/* Featured Apartments Component */}
-      <FeaturedApartments properties={properties} />
+  return (
+    <div style={styles.container}>
+        <>
+          <SearchAndFilter />
+          <FeaturedApartments properties={properties} />
+        </>
+      
     </div>
   );
 };
