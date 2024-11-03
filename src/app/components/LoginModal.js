@@ -3,8 +3,6 @@
 import { Modal, Input, Button, Row, Col, Checkbox, message } from 'antd';
 import { GoogleOutlined, AppleOutlined } from '@ant-design/icons';
 import { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../../lib/firebase'; // Adjust the import path based on your project structure
 
 const LoginModal = ({ setIsLoggedIn, setUserName, setUserType }) => {
   const [visibleLoginModal, setVisibleLoginModal] = useState(false);
@@ -29,9 +27,14 @@ const LoginModal = ({ setIsLoggedIn, setUserName, setUserType }) => {
       message.error('Please fill all required fields');
       return;
     }
-
+  
+    // Disable the login button to prevent multiple clicks
+    const loginButton = document.getElementById('login-button');
+    if (loginButton) {
+      loginButton.disabled = true;
+    }
+  
     try {
-      // Sign in with email and password
       const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
@@ -39,41 +42,44 @@ const LoginModal = ({ setIsLoggedIn, setUserName, setUserType }) => {
         },
         body: JSON.stringify({ email, password }),
       });
-
+  
       const data = await response.json();
-
-      // Only proceed if the response is okay
+  
       if (response.ok) {
         const { uid, email: userEmail, userType, firstName, lastName, agencyName } = data.user;
-
+  
         message.success('Login successful');
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('userId', uid);
         localStorage.setItem('userEmail', userEmail);
         localStorage.setItem('userType', userType);
-
-        // Set user details in state
+  
         const fullName = userType === 'agency' ? agencyName : `${firstName} ${lastName}`;
         localStorage.setItem('userName', fullName);
         setUserName(fullName);
         setUserType(userType);
         setIsLoggedIn(true);
+  
+        // Close the modal
         setVisibleLoginModal(false);
+  
       } else {
-        // Only show error if response is not okay
         message.error(data.error || 'Login failed');
       }
     } catch (error) {
-      // Handle network or other unexpected errors
       message.error('Error during login, please try again');
+    } finally {
+      // Re-enable the login button
+      if (loginButton) {
+        loginButton.disabled = false;
+      }
     }
-
+  
     // Clear input fields after login is clicked
     setEmail('');
     setPassword('');
-};
-
-
+  };
+  
   const hoverStyles = isHovered ? { color: '#FF5F00' } : {};
 
   const styles = {
@@ -124,7 +130,7 @@ const LoginModal = ({ setIsLoggedIn, setUserName, setUserType }) => {
       </button>
 
       <Modal
-        visible={visibleLoginModal}
+        open={visibleLoginModal}
         title="Login to your Account"
         footer={null}
         onCancel={handleLoginCancel}

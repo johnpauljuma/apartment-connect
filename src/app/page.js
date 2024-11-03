@@ -1,8 +1,6 @@
 "use client";
 
 import {useEffect, useState } from 'react';
-import SidebarMenu from './components/SidebarMenu';
-import Dashboard from './components/Dashboard';
 import FeaturedApartments from './components/FeaturedApartments'; 
 import SearchAndFilter from './components/SearchAndFilter';
 
@@ -19,38 +17,38 @@ const HomePage = () => {
   const [properties] = useState([
     {
       id: 1,
-      title: 'For Rent',
+      title: 'One Bedroom Apartment',
       price: '14,000 monthly',
       imgSrc: '/rent1.png',
     },
     {
       id: 2,
-      title: 'For Rent',
+      title: 'Two Bedroom Apartment',
       price: '24,000 monthly',
       imgSrc: '/rent2.jpeg',
     },
     {
       id: 3,
-      title: 'For Sale',
-      price: '4,500,000',
+      title: 'Single Room',
+      price: '4,500 monthly',
       imgSrc: '/rent4.jpeg',
     },
     {
       id: 4,
-      title: 'For Rent',
+      title: 'One Bedroom',
       price: '14,000 monthly',
       imgSrc: '/rent1.png',
     },
     {
       id: 5,
-      title: 'For Rent',
+      title: 'Two Bedroom Apartment',
       price: '24,000 monthly',
       imgSrc: '/rent2.jpeg',
     },
     {
       id: 6,
-      title: 'For Sale',
-      price: '4,500,000',
+      title: 'Bedsitter Apartment',
+      price: '6,500 monthly',
       imgSrc: '/rent4.jpeg',
     },
   ]);

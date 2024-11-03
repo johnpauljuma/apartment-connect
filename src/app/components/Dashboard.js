@@ -1,7 +1,7 @@
 "use client";
 import { Card, Col, Row, Statistic, Table, Input, Button, Dropdown, Menu, Space, Divider, theme } from "antd";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts"; // Import necessary components for BarChart
-import { PieChart, Pie, Cell } from "recharts"; // Import necessary components for PieChart
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
+import { PieChart, Pie, Cell } from "recharts";
 import {
   HomeOutlined,
   AppstoreAddOutlined,
@@ -156,7 +156,7 @@ const Dashboard = () => {
               valueStyle={{ color: "#faad14", fontSize: "24px" }}
               style={{ position: "relative" }}
             />
-            <div style={{ position: "absolute", top: 10, right: 10, fontSize: "16px", color: "#faad14" }}>100%</div>
+            <div style={{ position: "absolute", top: 10, right: 10, fontSize: "16px", color: "#faad14" }}></div>
           </Card>
         </Col>
       </Row>

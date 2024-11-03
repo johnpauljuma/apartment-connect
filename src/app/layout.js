@@ -1,11 +1,17 @@
 "use client";
 
-import { Layout, Menu, Avatar, Drawer } from 'antd';
+import { Layout, Menu, Avatar, Drawer, Badge, Modal } from 'antd';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Dashboard from './components/Dashboard';
 import LoginModal from './components/LoginModal';
 import UserTypeModal from './components/UserTypeModal';
+import Messages from './components/Messages';
+import FavoritesPage from './components/FavoritesPage';
+import Listings from './components/Listings';
+import CreateListing from './components/CreateListing';
+import ContactUs from './components/ContactUs';
+import TenantSettings from './components/TenantSettings';
 
 import {
   DashboardOutlined,
@@ -15,16 +21,18 @@ import {
   LogoutOutlined,
   PlusOutlined,
   ApartmentOutlined,
+  BellOutlined,
 } from '@ant-design/icons';
 
 const { Header, Content, Footer } = Layout;
 
 const MyLayout = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userType, setUserType] = useState(''); // State for user type (tenant, apartmentOwner, agency)
-  const [userName, setUserName] = useState(''); // Temporary user name
-  const [activeKey, setActiveKey] = useState('home'); // Key for the active view
+  const [userType, setUserType] = useState(''); 
+  const [userName, setUserName] = useState(''); 
+  const [activeKey, setActiveKey] = useState('home');
   const [visible, setVisible] = useState(false);
+  const [isContactModalVisible, setIsContactModalVisible] = useState(false);
 
   // Load login state and user info from localStorage when the component mounts
   useEffect(() => {
@@ -46,7 +54,12 @@ const MyLayout = ({ children }) => {
   // Function to handle click events for menu items
   const handleMenuClick = (key) => {
     setActiveKey(key);
-    localStorage.setItem('activeKey', key); // Persist activeKey in localStorage
+    localStorage.setItem('activeKey', key);
+
+    // Open contact modal
+    if (key === 'contact') {
+      setIsContactModalVisible(true);
+    }
 
     // Logout handling
     if (key === 'tenant-logout' || key === 'owner-logout' || key === 'agency-logout' || key === 'logout') {
@@ -57,28 +70,30 @@ const MyLayout = ({ children }) => {
   // Logout function
   const handleLogout = () => {
     setIsLoggedIn(false);
-    setActiveKey('home'); // Reset view to home on logout
+    setActiveKey('home');
+
+    // Clear localStorage on logout
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('userType');
     localStorage.removeItem('userName');
-    localStorage.removeItem('activeKey'); // Clear localStorage on logout
+    localStorage.removeItem('activeKey');
   };
 
   // Define menu items based on user types
   const menuItems = {
     tenant: [
       { key: 'tenant-dashboard', label: 'Dashboard', icon: <DashboardOutlined /> },
-      { key: 'tenant-messages', label: 'My Messages', icon: <MessageOutlined /> },
-      { key: 'tenant-saved-listings', label: 'Saved Listings', icon: <SaveOutlined /> },
+      { key: 'tenant-messages', label: 'Messages', icon: <MessageOutlined /> },
+      { key: 'tenant-favorites', label: 'Favorites', icon: <SaveOutlined /> },
       { key: 'tenant-settings', label: 'Settings', icon: <SettingOutlined /> },
       { key: 'tenant-logout', label: 'Logout', icon: <LogoutOutlined /> },
     ],
     owner: [
       { key: 'owner-dashboard', label: 'Dashboard', icon: <DashboardOutlined /> },
-      { key: 'owner-messages', label: 'My Messages', icon: <MessageOutlined /> },
-      { key: 'owner-saved-listings', label: 'Saved Listings', icon: <SaveOutlined /> },
+      { key: 'owner-messages', label: 'Messages', icon: <MessageOutlined /> },
+      { key: 'owner-favorites', label: 'Favorites', icon: <SaveOutlined /> },
       { key: 'owner-create-listing', label: 'Create Listing', icon: <PlusOutlined /> },
-      { key: 'owner-listings', label: 'My Listings', icon: <ApartmentOutlined /> },
+      { key: 'owner-listings', label: 'Listings', icon: <ApartmentOutlined /> },
       { key: 'owner-settings', label: 'Settings', icon: <SettingOutlined /> },
       { key: 'owner-logout', label: 'Logout', icon: <LogoutOutlined /> },
     ],
@@ -94,6 +109,7 @@ const MyLayout = ({ children }) => {
 
   const showDrawer = () => setVisible(true);
   const closeDrawer = () => setVisible(false);
+  const closeContactModal = () => setIsContactModalVisible(false);
 
   const styles = {
     signupBtn: {
@@ -110,7 +126,8 @@ const MyLayout = ({ children }) => {
       display: 'flex',
       alignItems: 'center',
       gap: '20px',
-      backgroundColor: 'transparent',
+      marginRight:'0',
+      float:'right'
     },
     drawerTitle: {
       display: 'flex',
@@ -125,50 +142,78 @@ const MyLayout = ({ children }) => {
     <html>
       <body>
         <Layout className="layout" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-          <Header style={{ backgroundColor: '#002379', display: 'flex', alignItems: 'center' }}>
-            <div className="logo" style={{ fontSize: '24px', fontWeight: 'bold', color: '#fff', letterSpacing: '2px' }}>
+          <Header style={{ backgroundColor: '#002379', display: 'flex', width:'100%', justifyContent:'space-between'}}>
+            <div className="logo" style={{fontSize: '24px', fontWeight: 'bold', color: '#fff', letterSpacing: '2px' }}>
               <Link href="/" style={{ color: 'white', textDecoration: 'none' }} onClick={() => handleMenuClick('home')}>
                 Apartment <span style={{ color: '#FF5F00' }}>Connect</span>
               </Link>
             </div>
 
-            <Menu theme="light" mode="horizontal" style={{ background: 'transparent', lineHeight: '64px', display: 'inline-flex', float: 'flex-end' }}>
-              <Menu.Item key="home" onClick={() => handleMenuClick('home')}>
-                Home
-              </Menu.Item>
-              <Menu.Item key="contact">
-                <Link href="/contact" style={styles.signupBtn}>Contact Us</Link>
-              </Menu.Item>
-            </Menu>
+            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '20px',}}>
+              <Menu theme="light" mode="horizontal" style={{ background: 'transparent', lineHeight: '64px', display: 'inline-flex', float: 'flex-end' }}>
+                <Menu.Item key="home" onClick={() => handleMenuClick('home')} style={styles.signupBtn}>
+                  Home
+                </Menu.Item>
+                <Menu.Item key="contact" onClick={() => handleMenuClick('contact')} style={styles.signupBtn}>
+                  Contact Us
+                </Menu.Item>
+              </Menu>
+              
+              {isLoggedIn ? (
+                <div style={styles.avatarContainer}>
+                  {/* Notification Button */}
+                  <Badge count={5}>
+                    <BellOutlined
+                      style={{ fontSize: '24px', color: '#fff', marginRight: '0px', cursor: 'pointer' }}
+                      onClick={() => handleMenuClick('notifications')} 
+                    />
+                  </Badge>
 
-            {isLoggedIn ? (
-              <div style={styles.avatarContainer}>
-                <Avatar style={{ backgroundColor: '#FF5F00' }}>
-                  {userType === 'agency' ? userName?.[0]?.toUpperCase() : `${userName?.[0]?.toUpperCase() || ''}${userName?.split(' ')[1]?.[0]?.toUpperCase() || ''}`}
-                </Avatar>
-                <button onClick={showDrawer} style={{ fontSize: '24px', cursor: 'pointer', backgroundColor: 'transparent', border: 'none' }}>
-                  ☰
-                </button>
-              </div>
-            ) : (
-              <>
-                <LoginModal style={styles.signupBtn} />
-                <UserTypeModal style={styles.signupBtn} />
-              </>
-            )}
+                  {/* Messages Button */}
+                  <Badge count={2}>
+                    <MessageOutlined
+                      style={{ fontSize: '24px', color: '#fff', marginRight: '0px', cursor: 'pointer' }}
+                      onClick={() => handleMenuClick('owner-messages')} 
+                    />
+                  </Badge>
+                  <Avatar style={{ backgroundColor: '#FF5F00' }}>
+                    {userType === 'agency' ? userName?.[0]?.toUpperCase() : `${userName?.[0]?.toUpperCase() || ''}${userName?.split(' ')[1]?.[0]?.toUpperCase() || ''}`}
+                  </Avatar>
+                  <button onClick={showDrawer} style={{ fontSize: '24px', cursor: 'pointer', backgroundColor: 'transparent', border: 'none', }}>
+                    ☰
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <LoginModal style={styles.signupBtn} />
+                  <UserTypeModal style={styles.signupBtn} />
+                </>
+              )}
+            </div>
           </Header>
 
           <Content style={{ padding: '0 50px', flex: '1 0 auto' }}>
             <div className="site-layout-content">
               {/* Conditionally render based on the activeKey */}
-              {activeKey === 'home' && children} {/* Home content goes here */}
-              {activeKey === 'dashboard' && <Dashboard />}
-              {activeKey === 'tenant-dashboard' && <Dashboard />} {/* Custom dashboards for users */}
+              {activeKey === 'home' && children}
+              {activeKey === 'tenant-dashboard' && <Dashboard />} 
               {activeKey === 'owner-dashboard' && <Dashboard />}
               {activeKey === 'agency-dashboard' && <Dashboard />}
-              {activeKey === 'tenant-messages' && <div>Tenant Messages</div>}
-              {activeKey === 'owner-create-listing' && <div>Create Listing</div>}
-              {/* You can add more conditional renders based on the activeKey */}
+
+              {activeKey === 'tenant-messages' && <Messages />}
+              {activeKey === 'owner-messages' && <Messages />}
+              {activeKey === 'agency-messages' && <Messages />}
+
+              {activeKey === 'tenant-favorites' && <FavoritesPage />}
+              {activeKey === 'owner-favorites' && <FavoritesPage />}
+
+              {activeKey === 'owner-create-listing' && <CreateListing />}
+              {activeKey === 'agency-create-listing' && <CreateListing />}
+
+              {activeKey === 'owner-listings' && <Listings />}
+              {activeKey === 'agency-listings' && <Listings />}
+
+              {activeKey === 'tenant-settings' && <TenantSettings />}
             </div>
           </Content>
 
@@ -195,11 +240,24 @@ const MyLayout = ({ children }) => {
                 key: item.key,
                 icon: item.icon,
                 label: item.label,
-                onClick: () => {handleMenuClick(item.key),
-                closeDrawer();}
+                onClick: () => {
+                  handleMenuClick(item.key);
+                  closeDrawer();
+                }
               }))}
             />
           </Drawer>
+
+          {/* Contact Us Modal */}
+        <Modal
+          title="Contact Us"
+          visible={isContactModalVisible}
+          onCancel={closeContactModal}
+          footer={null}
+          closeIcon={<span style={{ fontSize: '20px', cursor: 'pointer', color: '#FF5F00' }}>✖</span>} // Custom close icon
+        >
+          <ContactUs onClose={closeContactModal} />
+        </Modal>
         </Layout>
       </body>
     </html>

@@ -12,7 +12,7 @@ export async function POST(req) {
     const { uid } = userCredential.user;
 
     // Fetch user details from Firestore
-    const userDoc = doc(firestore, 'users', uid); // Adjust the collection name as needed
+    const userDoc = doc(firestore, 'users', uid);
     const docSnap = await getDoc(userDoc);
 
     if (!docSnap.exists()) {
@@ -24,7 +24,6 @@ export async function POST(req) {
 
     return new Response(
       JSON.stringify({
-        message: 'Login successful!',
         user: {
           uid,
           email,
@@ -37,6 +36,6 @@ export async function POST(req) {
     );
   } catch (error) {
     console.error("Error during login:", error.message);
-    return new Response(JSON.stringify({ error: 'Login failed, please try again' }), { status: 400 });
+    return new Response(JSON.stringify({ error: error.message }), { status: 400 });
   }
 }
